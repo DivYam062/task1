@@ -55,7 +55,6 @@ const PostsPage = () => {
   };
 
   const filteredPosts = useMemo(() => {
-    // Filter logic based on tags and search text
     return posts.filter(post => {
       const hasMatchingTag = filters.tags.length === 0 || filters.tags.some(tag => post.tags.includes(tag));
       const textMatch = new RegExp(filters.searchText, 'i').test(post.title) || new RegExp(filters.searchText, 'i').test(post.body);
