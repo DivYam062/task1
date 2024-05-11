@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import PostsTable from './PostsTable';
 import MultiSelectFilter from './MultiSelectFilter';
@@ -54,6 +54,15 @@ const PostsPage = () => {
     navigate(`?search=${searchText}`);
   };
 
+  const filteredPosts = useMemo(() => {
+    // Filter logic based on tags and search text
+    return posts.filter(post => {
+      const hasMatchingTag = filters.tags.length === 0 || filters.tags.some(tag => post.tags.includes(tag));
+      const textMatch = new RegExp(filters.searchText, 'i').test(post.title) || new RegExp(filters.searchText, 'i').test(post.body);
+      return hasMatchingTag && textMatch;
+    });
+  }, [posts, filters]);
+
   const columns = [
     {
       title: 'Title',
@@ -89,13 +98,17 @@ const PostsPage = () => {
         onChange={handleTagsChange}
       />
       <SearchInput value={filters.searchText} onChange={handleSearch} />
-      <PostsTable
-        dataSource={posts}
-        columns={columns}
-        pagination={pagination}
-        loading={loading}
-        onChange={handleTableChange}
-      />
+      {filteredPosts.length > 0 ? (
+        <PostsTable
+          dataSource={filteredPosts}
+          columns={columns}
+          pagination={pagination}
+          loading={loading}
+          onChange={handleTableChange}
+        />
+      ) : (
+        <p>No posts found matching your filters.</p>
+      )}
     </div>
   );
 };
